@@ -22,7 +22,7 @@
   	T handle(ResultSet rs) throws SQLException;
   }
   ```
-　　在实际应用中，结果集是某张表的一行或多行数据时，常使用BeanHandler、BeanListHandler或JSONObjectHandler、JSONArrayHandler进行处理，结果集是某一列的一行或多行数据时，使用ColumnHandler、ColumnListHandler进行处理。 
+　　在实际应用中，结果集是某张表或视图的一行或多行数据时，常使用BeanHandler、BeanListHandler或JSONObjectHandler、JSONArrayHandler进行处理，结果集是某一列的一行或多行数据时，使用ColumnHandler、ColumnListHandler进行处理。 
 　　
 ### 1.3 连接的管理
 
