@@ -119,10 +119,79 @@ public <T> T query(Connection conn, String sql, ResultSetHandler<T> rsh, Object.
 　　　　  
 　　本人对此深以为然，所以Memory工具在接口方法名称、类名等的使用上相当节制（数量尽量少），这点也不同于别的持久化工具。
 
+#### 2.2.1 新增(create)
+    
+　　这些接口可持久化新增的一个对象或多个对象时。customkey这个参数表示主键的值是否使用自定的值。如果不是使用自定义的值，则采用序列(oracle)或自增主键(mysql)，此时主键的名称必须是ID。
 
-##	3.	多余的废话
+#### 2.2.2 查询(read)
+
+　　根据主键（主键名必须为ID）读取一条记录，并转化为对象。
+
+#### 2.2.3 更新(update)
+
+　　这些接口可持久化更新的一个对象或多个对象时。primaryKey这个参数指定主键名称，默认是ID
+
+#### 2.2.4 删除(delete)
+
+　　根据主键（主键名必须为ID）删除一条记录。
+  
+### 2.3	其它
+　　Memory的API在SQL语句操作层面分为：命令与查询（2.1节），在对象操作层面分为：增删改查（2.2节）。查询有一些常用的辅助性操作，比如分页和IN语句；在对事务有要求的场合，memory提供获取连接的接口，并将连接交给应用自行控制。
+
+#### 2.3.1 分页
+ 
+　　分页查询几乎是必不可少的，但是oracle的分页查询语句写起来相当复杂（3重嵌套），mysql分页查询虽然简单，但是其参数limit offset, n也不够直观。
+分页查询，即在问如果每页pageSize条记录，那么第pageNo页的记录是什么。分页查询接口(pager)封装了oracle和mysql的查询语句，并提供了pageSize和pageNo两个直观的参数。
+
+#### 2.3.2 IN语句
+ 
+　　IN语句在查询时也比较常用，占位符?必须与参数的个数相匹配，手工拼接容易出错；当参数个数是动态变化时，占位符的拼写更是繁琐，因此对IN语句做了一个简单的封装，以保持代码的简洁。
+
+#### 2.3.3 事务
+ 
+　　可以从memory取出一条连接，然后设置连接为非自动提交，进行事务操作与回滚。
+
+
+## 3.多余的废话
+
+### 3.1	为什么不用链式写法？	
+
+　　不少持久化的库或框架，喜欢使用链式写法来写SQL语句。但是殊不知链式的写法在Jquery很自然，在SQL中却是生搬硬套，不得其法。SQL是数据库领域的专用语言(DSL)，用其本来的写法来表达是最自然的。
+　　
+　　这些库的设计与Hibernate的Criterion多多少少有些相似，把SQL简单明了的写法改成所谓面向对象的链式写法。关系和对象变得扭曲（Object-Relational Impedance Mismatch），让人几乎看不到SQL本身的简洁和链式写法（builder pattern）的优雅，一举两“失”。
+
+### 3.2 为什么不用XML或Annotation配置?
+
+　　只要我们约定了表名与类名、列名与字段名的命名规则，并严格遵循，何须在再去了解XML和annotation配置的写法，再去写XML和Annotation维护映射关系呢？。少了这些额外的东西，代码的可维护性和可读性是不是也大大提高了呢。
+
+### 3.3	为什么只用PreparedStatement?
+
+　　Statement和CallableStatement只在极少的场景，比如复杂的数据导入导出，可能用到。但在绝多大多数场景，PreparedStatment相对Statement更高效、更安全，代码的可读性更好；而CallableStatment，是把业务逻辑隐藏在SQL的存储过程，而不是显化在代码之中，理解代码将变得更困难，可读性也不如PreparedStatement。
+　　
+### 3.4	能不能把运行时的SQL语句打印出来？
+
+　　在开发过程，SQL语句有可能写错，如果能把运行时出错的SQL语句直接打印出来，那对排错非常方便，因为其可以直接拷贝到数据库客户端进行调试。在[《JDBC 查询日志变得简单》](https://www.ibm.com/developerworks/cn/java/j-loggable/)这篇文章中，作者也希望有一种方法，它使我们能够获得查询字符串，并用实际的参数值替换参数占位符，最终他提出了一种解决方案，使用修饰器模式(decorator)扩展PreparedStatement，新增一个有日志功能的LoggableStatment的类。这当然是很不错的解决方案。
+　　Memory工具，没有新增扩展类，只是在PrparedStatementHandler中，提供一个print方法，将SQL语句中的占位符替换为实际的参数，并在发生SQL Exception时，将其打印出来。
+
+### 3.5	也说ORM
+
+　　在开源中国可以搜到数百个ORM框架或类库。可见ORM曾经、也许现在还是，让不少攻城狮和程序猿，趋之若鹜。当然也有人对其反思，有一篇文章《为什么我说ORM是一种反模式》，[中文版](http://www.nowamagic.net/librarys/veda/detail/2217)，[英文版](https://github.com/brettwooldridge/SansOrm/wiki/ORM-is-an-anti-pattern)，就提出不同的看法。
+　　ORM，通俗讲，就是把一种问题转化为另一种问题进行解决。但是数据库的问题，比如关联查询、分页、排序，能在OOP中得以完美的解决吗？OOP恐怕心有余而力不足。而这些问题却是关系数据库最擅长的问题域。把关系数据库擅长解决的问题转化给不擅长处理这类问题的OOP去解决，这不是很糊涂吗？OOP的方法论，应当控制一下自己的野心，专注于自己擅长的领域，比如代码的组织与管理、界面开发的应用等等。
+　　当然ORM也不是一无是处，把一条数据（结果集）自动转化为一个对象，以便于业务代码的处理还是有益处的。但要把所有的关系操作映射为对象的操作（比如外键关系映射为继承），或者反之（比如将继承映射为外键关系），必定是事倍功半、得不偿失。
 
 ##	4. 参考文献
+-http://commons.apache.org/proper/commons-dbutils/
+-http://www.nowamagic.net/librarys/veda/detail/2217
+-https://github.com/brettwooldridge/SansOrm/wiki/ORM-is-an-anti-pattern
+-http://segmentfault.com/a/1190000000378827
+-http://www.oschina.net/project/tag/126/orm
+-http://www.nutzam.com/core/dao/annotations.html
+-https://github.com/lifesinger/lifesinger.github.com/issues/114
+-https://github.com/brettwooldridge/SansOrm/wiki/ORM-is-an-anti-pattern
+-http://www.oschina.net/translate/secrets-of-awesome-javascript-api-design
+-https://github.com/lifesinger/lifesinger.github.com/issues/114 
+-http://download.oracle.com/otndocs/jcp/jdbc-4_1-mrel-spec/index.html
+-http://en.wikipedia.org/wiki/Singleton_pattern#Lazy_initialization
 
 
 
