@@ -59,7 +59,8 @@ public class MemoryFactory {
 	}
 
 	private static class SingletonHolder {
-		public static final Memory MEMORY = new Memory(new SimpleDataSource());
+		public static final Memory MEMORY = new Memory(getDataSource());
+		//public static final Memory MEMORY = new Memory(new SimpleDataSource());
 	}
 
 	public static Memory getInstance() {
@@ -79,8 +80,27 @@ public class MemoryFactory {
 ```
 
 ### 1.4 语句预处理
+
+　　与ResultSetHanlder相互呼应，提供了PreparedStatementHanlder类，这个类提供语句（PreparedStatment）一些辅助性的方法，比如生成运行时的SQL语句、调整日期格式、简化分页语句写法等。这个类在应用中不会直接用到。其作用将隐藏在最重要的一个类Memory之中（与这个工具命名相同）。
   
-##	2.	使用 
+## 2.	使用 
+　　上章从结果集提取、连接管理、语句处理等3个角度介绍了这个工具，本章介绍的Memory类就是对3者的集成，分3节描述Memory开放的API。
+### 2.1	命令与查询
+　　对数据库所有的操作，可分为两类：命令与查询。命令即更新数据，可进一步分为新增、删除与编辑。
+　　
+#### 2.1.1 查询(query)
+``` java
+public <T> T query(StringBuffer sql, ResultSetHandler<T> rsh, List<Object> params) throws SQLException;
+public <T> T query(String sql, ResultSetHandler<T> rsh, Object... params) throws SQLException;
+public <T> T query(Connection conn, StringBuffer sql,ResultSetHandler<T> rsh, List<Object> params) 
+	throws SQLException;
+public <T> T query(Connection conn, String sql, ResultSetHandler<T> rsh, Object... params) 
+	throws SQLException;
+```
+　　从接口定义可以看出，查询(query)方法，返回结果集，参数名也相似，只是数据结构不同而已：StringBuffer和List一组，String和Array（变长参数）一组，没有传递Connection参数，则表明连接在memory内部管理；有传递Connection参数，则表明连接交给外部程序管理。
+　　
+　　在这个层面使用API，就是写SQL语句，几乎没有任何限制，唯一的限制就是在使用BeanHandler与BeanListHandler时，Bean的字段与Table的字段要存在相互匹配，Bean的字段命名风格是驼峰式，Table的字段命名是下划线连接。
+
 
 ##	3.	多余的废话
 
