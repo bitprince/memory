@@ -165,24 +165,24 @@ public <T> T query(Connection conn, String sql, ResultSetHandler<T> rsh, Object.
 　　只要我们约定了表名与类名、列名与字段名的命名规则，并严格遵循，何须在再去了解XML和annotation配置的写法，再去写XML和Annotation维护映射关系呢？。少了这些额外的东西，代码的可维护性和可读性是不是也大大提高了呢。
 
 ### 3.3	为什么只用PreparedStatement?
-
+      
 　　Statement和CallableStatement只在极少的场景，比如复杂的数据导入导出，可能用到。但在绝多大多数场景，PreparedStatment相对Statement更高效、更安全，代码的可读性更好；而CallableStatment，是把业务逻辑隐藏在SQL的存储过程，而不是显化在代码之中，理解代码将变得更困难，可读性也不如PreparedStatement。
 　　
 ### 3.4	能不能把运行时的SQL语句打印出来？
 
 　　在开发过程，SQL语句有可能写错，如果能把运行时出错的SQL语句直接打印出来，那对排错非常方便，因为其可以直接拷贝到数据库客户端进行调试。在[《JDBC 查询日志变得简单》](https://www.ibm.com/developerworks/cn/java/j-loggable/)这篇文章中，作者也希望有一种方法，它使我们能够获得查询字符串，并用实际的参数值替换参数占位符，最终他提出了一种解决方案，使用修饰器模式(decorator)扩展PreparedStatement，新增一个有日志功能的LoggableStatment的类。这当然是很不错的解决方案。
-　　 
+　　      
 　　Memory工具，没有新增扩展类，只是在PrparedStatementHandler中，提供一个print方法，将SQL语句中的占位符替换为实际的参数，并在发生SQL Exception时，将其打印出来。
 
 ### 3.5	也说ORM
 
 　　在开源中国可以搜到数百个ORM框架或类库。可见ORM曾经、也许现在还是，让不少攻城狮和程序猿，趋之若鹜。当然也有人对其反思，有一篇文章《为什么我说ORM是一种反模式》，[中文版](http://www.nowamagic.net/librarys/veda/detail/2217)，[英文版](https://github.com/brettwooldridge/SansOrm/wiki/ORM-is-an-anti-pattern)，就提出不同的看法。
-　　 
+　　    
 　　ORM，通俗讲，就是把一种问题转化为另一种问题进行解决。但是数据库的问题，比如关联查询、分页、排序，能在OOP中得以完美的解决吗？OOP恐怕心有余而力不足。而这些问题却是关系数据库最擅长的问题域。把关系数据库擅长解决的问题转化给不擅长处理这类问题的OOP去解决，这不是很糊涂吗？OOP的方法论，应当控制一下自己的野心，专注于自己擅长的领域，比如代码的组织与管理、界面开发的应用等等。
-　　 
+　　      
 　　当然ORM也不是一无是处，把一条数据（结果集）自动转化为一个对象，以便于业务代码的处理还是有益处的。但要把所有的关系操作映射为对象的操作（比如外键关系映射为继承），或者反之（比如将继承映射为外键关系），必定是事倍功半、得不偿失。
 
-##	4. 参考文献
+## 4. 参考文献
 - http://commons.apache.org/proper/commons-dbutils/
 - http://www.nowamagic.net/librarys/veda/detail/2217
 - https://github.com/brettwooldridge/SansOrm/wiki/ORM-is-an-anti-pattern
