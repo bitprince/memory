@@ -114,9 +114,7 @@ public <T> T query(Connection conn, String sql, ResultSetHandler<T> rsh, Object.
 
 ### 2.2 增删改查(CRUD)
 　　增删改查，英文缩写为CRUD，这个大家都非常熟悉，使用Create, read, update, delete来做作为接口名称，这样记忆和理解成本最低。
-　　  
-　　> Lifesinger在[《jQuery 为什么优秀兼谈库与框架的设计》](https://github.com/lifesinger/lifesinger.github.com/issues/114)一文中，提到：**在类库界，解决了What，解决了定位问题后，基本上已经决定了生死存亡。 至于 How，也重要但往往不是关键。**
-　　  
+　　Lifesinger在[《jQuery 为什么优秀兼谈库与框架的设计》](https://github.com/lifesinger/lifesinger.github.com/issues/114)一文中，提到：**在类库界，解决了What，解决了定位问题后，基本上已经决定了生死存亡。 至于 How，也重要但往往不是关键。**
 　　本人对此深以为然，所以Memory工具在接口方法名称、类名等的使用上相当节制（数量尽量少），这点也不同于别的持久化工具。
 
 
