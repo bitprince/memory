@@ -95,8 +95,8 @@ public <T> T query(String sql, ResultSetHandler<T> rsh, Object... params);
 public <T> T query(Connection conn, StringBuffer sql,ResultSetHandler<T> rsh, List<Object> params);
 public <T> T query(Connection conn, String sql, ResultSetHandler<T> rsh, Object... params);
 ```
-　　从接口定义可以看出，查询(query)方法，返回结果集，参数名也相似，只是数据结构不同而已：StringBuffer和List一组，String和Array（变长参数）一组，没有传递Connection参数，则表明连接在memory内部管理；有传递Connection参数，则表明连接交给外部程序管理。
-　　
+　　从接口定义可以看出，查询(query)方法，返回结果集，参数名也相似，只是数据结构不同而已：StringBuffer和List一组，String和Array（变长参数）一组，没有传递Connection参数，则表明连接在memory内部管理；有传递Connection参数，则表明连接交给外部程序管理。  
+
 　　在这个层面使用API，就是写SQL语句，几乎没有任何限制，唯一的限制就是在使用BeanHandler与BeanListHandler时，Bean的字段与Table的字段要存在相互匹配，Bean的字段命名风格是驼峰式，Table的字段命名是下划线连接。
 　　
 #### 2.1.2 命令(update)
@@ -109,14 +109,12 @@ public <T> T query(Connection conn, String sql, ResultSetHandler<T> rsh, Object.
  public int[] batch(String sql, Object[][] params);
  public int[] batch(Connection conn, String sql, Object[][] params);
  ```
-相对于查询(query)方法，更新(update)方法，没有结果集处理器(ResultSetHandler)的参数以及结果集转化为的对象。
-但更新有批量更新(batch)的方法，提供批量执行sql语句的功能。
+　　相对于查询(query)方法，更新(update)方法，没有结果集处理器(ResultSetHandler)的参数以及结果集转化为的对象。但更新有批量更新(batch)的方法，提供批量执行sql语句的功能。
 
 
 ### 2.2 增删改查(CRUD)
-　　增删改查，英文缩写为CRUD，这个大家都非常熟悉，使用Create, read, update, delete来做作为接口名称，这样记忆和理解成本最低。  
+　　增删改查，英文缩写为CRUD，这个大家都非常熟悉，使用Create, read, update, delete来做作为接口名称，这样记忆和理解成本最低。
 　　Lifesinger在[《jQuery 为什么优秀兼谈库与框架的设计》](https://github.com/lifesinger/lifesinger.github.com/issues/114)一文中，提到：在类库界，解决了What，解决了定位问题后，基本上已经决定了生死存亡。 至于 How，也重要但往往不是关键。
-　　
 　　本人对此深以为然，所以Memory工具在接口方法名称、类名等的使用上相当节制（数量尽量少），这点也不同于别的持久化工具。
 
 
