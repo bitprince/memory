@@ -140,8 +140,7 @@ public <T> T query(Connection conn, String sql, ResultSetHandler<T> rsh, Object.
 
 #### 2.3.1 分页
  
-　　分页查询几乎是必不可少的，但是oracle的分页查询语句写起来相当复杂（3重嵌套），mysql分页查询虽然简单，但是其参数limit offset, n也不够直观。
-分页查询，即在问如果每页pageSize条记录，那么第pageNo页的记录是什么。分页查询接口(pager)封装了oracle和mysql的查询语句，并提供了pageSize和pageNo两个直观的参数。
+　　分页查询几乎是必不可少的，但是oracle的分页查询语句写起来相当复杂（3重嵌套），mysql分页查询虽然简单，但是其参数limit offset, n也不够直观。分页查询，即在问如果每页pageSize条记录，那么第pageNo页的记录是什么。分页查询接口(pager)封装了oracle和mysql的查询语句，并提供了pageSize和pageNo两个直观的参数。
 
 #### 2.3.2 IN语句
  
@@ -157,7 +156,7 @@ public <T> T query(Connection conn, String sql, ResultSetHandler<T> rsh, Object.
 ### 3.1	为什么不用链式写法？	
 
 　　不少持久化的库或框架，喜欢使用链式写法来写SQL语句。但是殊不知链式的写法在Jquery很自然，在SQL中却是生搬硬套，不得其法。SQL是数据库领域的专用语言(DSL)，用其本来的写法来表达是最自然的。
-　　
+　　    
 　　这些库的设计与Hibernate的Criterion多多少少有些相似，把SQL简单明了的写法改成所谓面向对象的链式写法。关系和对象变得扭曲（Object-Relational Impedance Mismatch），让人几乎看不到SQL本身的简洁和链式写法（builder pattern）的优雅，一举两“失”。
 
 ### 3.2 为什么不用XML或Annotation配置?
@@ -176,7 +175,7 @@ public <T> T query(Connection conn, String sql, ResultSetHandler<T> rsh, Object.
 
 ### 3.5	也说ORM
 
-　　在开源中国可以搜到数百个ORM框架或类库。可见ORM曾经、也许现在还是，让不少攻城狮和程序猿，趋之若鹜。当然也有人对其反思，有一篇文章《为什么我说ORM是一种反模式》，[中文版](http://www.nowamagic.net/librarys/veda/detail/2217)，[英文版](https://github.com/brettwooldridge/SansOrm/wiki/ORM-is-an-anti-pattern)，就提出不同的看法。
+　　在开源中国可以搜到数百个ORM框架或类库。可见ORM曾经、也许现在还是，让不少攻城狮和程序猿，趋之若鹜。当然也有人对其反思，有一篇文章[《为什么我说ORM是一种反模式》](http://www.nowamagic.net/librarys/veda/detail/2217)，[中文版](http://www.nowamagic.net/librarys/veda/detail/2217)，[英文版](https://github.com/brettwooldridge/SansOrm/wiki/ORM-is-an-anti-pattern)，就提出不同的看法。
 　　    
 　　ORM，通俗讲，就是把一种问题转化为另一种问题进行解决。但是数据库的问题，比如关联查询、分页、排序，能在OOP中得以完美的解决吗？OOP恐怕心有余而力不足。而这些问题却是关系数据库最擅长的问题域。把关系数据库擅长解决的问题转化给不擅长处理这类问题的OOP去解决，这不是很糊涂吗？OOP的方法论，应当控制一下自己的野心，专注于自己擅长的领域，比如代码的组织与管理、界面开发的应用等等。
 　　      
