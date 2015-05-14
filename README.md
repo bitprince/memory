@@ -14,9 +14,17 @@
   - 打印运行时出错的SQL语句，其可以直接拷贝到数据库客户端上进行调试；
   - 直截了当的分页查询。
 
-
-
 ### 1.2 获取结果集
+
+　　获取结果集，就是把ResultSet转换为目标数据结构，这里使用T（泛型）泛指各种数据结构。我们定义一个接口类来表示这件事情：  
+  ``` java
+  public interface ResultSetHandler<T> {
+    T handle(ResultSet rs) throws SQLException;
+  }
+  ```
+　　在实际应用中，结果集是某张表的一行或多行数据时，常使用BeanHandler、BeanListHandler或JSONObjectHandler、JSONArrayHandler进行处理，结果集是某一列的一行或多行数据时，使用ColumnHandler、ColumnListHandler进行处理。
+　　
+
 ### 1.3 连接的管理
 ### 1.4 语句预处理
   
