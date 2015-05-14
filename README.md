@@ -4,7 +4,7 @@
 #### 1.1 连接、语句和结果集
 ![](https://github.com/bitprince/memory/blob/master/docs/jdbc.png)
 
-　　从JDBC的规范上看，其对数据访问层有相当简洁的抽象：1、连接(connection) 2、语句(statement)、3结果集(result set)。 我们对数据库做的事情无非：*连接数据库，执行语句，拿到结果*。
+　　从[JDBC的规范](http://download.oracle.com/otndocs/jcp/jdbc-4_1-mrel-spec/index.html)上看，其对数据访问层有相当简洁的抽象：1、连接(connection) 2、语句(statement)、3结果集(result set)。 我们对数据库做的事情无非：**连接数据库，执行语句，拿到结果**。
   
 　　因此，持久化的工具的目的就不言自明了：进一步简化连接的管理、语句的执行、结果集提取等操作。下面从获取结果集、管理连接、语句预处理等3方面逐一阐述工具做了哪些事情。
 
