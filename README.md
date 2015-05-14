@@ -50,7 +50,33 @@
 	 />
 </Context>
 ```
-在代码中实例化（采用懒加载单例模式）该数据源：
+　　在代码中实例化（采用懒加载单例模式）该数据源：
+``` java
+public class MemoryFactory {
+
+	private MemoryFactory() {
+
+	}
+
+	private static class SingletonHolder {
+		public static final Memory MEMORY = new Memory(new SimpleDataSource());
+	}
+
+	public static Memory getInstance() {
+		return SingletonHolder.MEMORY;
+	}
+	
+	public static final DataSource getDataSource() {
+		try {
+			Context context = new InitialContext();
+			return (DataSource) context.lookup("java:comp/env/jdbc/test");
+		} catch (NamingException e) {
+			throw new RuntimeException(e);
+		}
+	}
+}
+
+```
 
 ### 1.4 语句预处理
   
