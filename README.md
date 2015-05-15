@@ -188,12 +188,57 @@ public Connection getConnection();
 ### 3.1	为什么不用链式写法？	
 
 　　不少持久化的库或框架，喜欢使用链式写法来写SQL语句。但是殊不知链式的写法在Jquery很自然，在SQL中却是生搬硬套，不得其法。SQL是数据库领域的专用语言(DSL)，用其本来的写法来表达是最自然的。
-　　    
+  
+　　 试举一些持久化框架的做法,比如[droidparts](http://droidparts.org/orm.html#many-to-many)：
+``` java
+ // Select is used to provide data to EntityCursorAdapter
+Select<EntityType> select = select().columns("_id", "name").where("external_id", Is.EQUAL, 10);
+
+// alternatively, call execute() to get the underlying Cursor
+Cursor cursor = select().where("name", Is.LIKE, "%%alex%%").execute();
+
+// use Where object for complex queries
+Where haveCoordinaltes = new Where("latitude", Is.NOT_EQUAL, 0).or("longitude", Is.NOT_EQUAL, 0);
+select().where("country", Is.EQUAL, "us").where(haveCoordinates);
+```   
+　　 又比如[nutzam](http://www.nutzam.com/core/dao/condition.html)：
+``` java
+Condition c = Cnd.where("age",">",30).and("name", "LIKE", "%K%").asc("name").desc("id");
+```　　    
 　　这些库的设计与Hibernate的Criterion多多少少有些相似，把SQL简单明了的写法改成所谓面向对象的链式写法。关系和对象变得扭曲（Object-Relational Impedance Mismatch），让人几乎看不到SQL本身的简洁和链式写法（builder pattern）的优雅，一举两“失”。
 
 ### 3.2 为什么不用XML或Annotation配置?
 
 　　只要我们约定了表名与类名、列名与字段名的命名规则，并严格遵循，何须在再去了解XML和annotation配置的写法，再去写XML和Annotation维护映射关系呢？。少了这些额外的东西，代码的可维护性和可读性是不是也大大提高了呢。
+   
+　　 试举一些持久化框架的做法,比如[droidparts](http://droidparts.org/orm.html#many-to-many)：
+``` java
+@Table(name="track_to_tag")
+public class TrackToTag extends Entity {
+    @Column(nullable = false)
+    public Track track;
+    @Column(nullable = false)
+    public Tag tag;
+}
+```　
+　　 又比如[nutzam](http://www.nutzam.com/core/dao/condition.html)：
+``` java
+@Table("t_company")
+public class Company {
+
+    @Id
+    private int id;
+
+    @Name
+    private String name;
+
+    @Column
+    private int ceoId;
+
+    @One(target = Employee.class, field = "ceoId")
+    private Employee CEO;    
+}
+```
 
 ### 3.3	为什么只用PreparedStatement?
       
