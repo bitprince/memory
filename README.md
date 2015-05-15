@@ -120,34 +120,66 @@ public <T> T query(Connection conn, String sql, ResultSetHandler<T> rsh, Object.
 　　本人对此深以为然，所以Memory工具在接口方法名称、类名等的使用上相当节制（数量尽量少），这点也不同于别的持久化工具。
 
 #### 2.2.1 新增(create)
-    
+``` java
+public <T> int create(Class<T> cls, T bean);
+public <T> int create(Class<T> cls, T bean, boolean customKey);
+public <T> int create(Connection conn, Class<T> cls, T bean);
+public <T> int create(Connection conn, Class<T> cls, T bean, boolean customKey);
+
+public <T> int[] create(Class<T> cls, List<T> beans);
+public <T> int[] create(Class<T> cls, List<T> beans, boolean customKey);
+public <T> int[] create(Connection conn, Class<T> cls, List<T> beans);
+public <T> int[] create(Connection conn, Class<T> cls, List<T> beans, boolean customKey);
+```
 　　这些接口可持久化新增的一个对象或多个对象时。customkey这个参数表示主键的值是否使用自定的值。如果不是使用自定义的值，则采用序列(oracle)或自增主键(mysql)，此时主键的名称必须是ID。
 
 #### 2.2.2 查询(read)
-
+``` java
+public <T> T read(Class<T> cls, long id);
+public <T> T read(Connection conn, Class<T> cls, long id);
+```
 　　根据主键（主键名必须为ID）读取一条记录，并转化为对象。
 
 #### 2.2.3 更新(update)
+``` java
+public <T> int update(Class<T> cls, T bean);
+public <T> int update(Connection conn,Class<T> cls, T bean);
+public <T> int update(Class<T> cls, T bean, String primaryKey);
+public <T> int update(Connection conn, Class<T> cls, T bean, String primaryKey);
 
-　　这些接口可持久化更新的一个对象或多个对象时。primaryKey这个参数指定主键名称，默认是ID
+public <T> int[] update(Class<T> cls, List<T> beans);
+public <T> int[] update(Connection conn, Class<T> cls, List<T> beans);
+public <T> int[] update(Class<T> cls, List<T> beans,String primaryKey);
+public <T> int[] update(Connection conn, Class<T> cls, List<T> beans,String primaryKey);
+```
+　　这些接口可持久化更新的一个对象或多个对象时。primaryKey这个参数指定主键名称，默认是ID。
 
 #### 2.2.4 删除(delete)
-
+``` java
+public <T> int delete(Class<T> cls, long id);
+public <T> int delete(Connection conn, Class<T> cls, long id);
+```
 　　根据主键（主键名必须为ID）删除一条记录。
   
 ### 2.3	其它
 　　Memory的API在SQL语句操作层面分为：命令与查询（2.1节），在对象操作层面分为：增删改查（2.2节）。查询有一些常用的辅助性操作，比如分页和IN语句；在对事务有要求的场合，memory提供获取连接的接口，并将连接交给应用自行控制。
 
 #### 2.3.1 分页
- 
+``` java
+public void pager(StringBuffer sql, List<Object> params, int pageSize, int pageNo);
+``` 
 　　分页查询几乎是必不可少的，但是oracle的分页查询语句写起来相当复杂（3重嵌套），mysql分页查询虽然简单，但是其参数limit offset, n也不够直观。分页查询，即在问如果每页pageSize条记录，那么第pageNo页的记录是什么。分页查询接口(pager)封装了oracle和mysql的查询语句，并提供了pageSize和pageNo两个直观的参数。
 
 #### 2.3.2 IN语句
- 
+``` java
+public <T> void in(StringBuffer sql, List<Object> params, String operator, String field, List<T> values)
+``` 
 　　IN语句在查询时也比较常用，占位符?必须与参数的个数相匹配，手工拼接容易出错；当参数个数是动态变化时，占位符的拼写更是繁琐，因此对IN语句做了一个简单的封装，以保持代码的简洁。
 
 #### 2.3.3 事务
- 
+``` java
+public Connection getConnection();
+``` 
 　　可以从memory取出一条连接，然后设置连接为非自动提交，进行事务操作与回滚。
 
 
@@ -194,6 +226,3 @@ public <T> T query(Connection conn, String sql, ResultSetHandler<T> rsh, Object.
 - https://github.com/lifesinger/lifesinger.github.com/issues/114 
 - http://download.oracle.com/otndocs/jcp/jdbc-4_1-mrel-spec/index.html
 - http://en.wikipedia.org/wiki/Singleton_pattern#Lazy_initialization
-
-
-
