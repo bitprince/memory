@@ -190,7 +190,33 @@ public Connection getConnection();
 　　不少持久化的库或框架，喜欢使用链式写法来写SQL语句。但是殊不知链式的写法在Jquery很自然，在SQL中却是生搬硬套，不得其法。SQL是数据库领域的专用语言(DSL)，用其本来的写法来表达是最自然的。
   
 　　 试举一些持久化框架的做法,比如[droidparts](http://droidparts.org/orm.html#many-to-many)：
- 
+``` java
+@Table(name="track_to_tag")
+public class TrackToTag extends Entity {
+    @Column(nullable = false)
+    public Track track;
+    @Column(nullable = false)
+    public Tag tag;
+}
+```
+　　又比如[nutzam](http://www.nutzam.com/core/dao/condition.html)：
+``` java
+@Table("t_company")
+public class Company {
+
+    @Id
+    private int id;
+
+    @Name
+    private String name;
+
+    @Column
+    private int ceoId;
+
+    @One(target = Employee.class, field = "ceoId")
+    private Employee CEO;    
+}
+```
 　　这些库的设计与Hibernate的Criterion多多少少有些相似，把SQL简单明了的写法改成所谓面向对象的链式写法。关系和对象变得扭曲（Object-Relational Impedance Mismatch），让人几乎看不到SQL本身的简洁和链式写法（builder pattern）的优雅，一举两“失”。
 　　         
 ### 3.2 为什么不用XML或Annotation配置?
