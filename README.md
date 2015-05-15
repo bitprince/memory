@@ -1,4 +1,4 @@
-## 瘦骨嶙峋的记录者: 持久化工具Memory
+## 瘦骨嶙峋的记录者: 持久化工具memory
 
 ###	1. 概述
 #### 1.1 连接、语句和结果集
@@ -251,7 +251,7 @@ public class Company {
 
 　　在开发过程，SQL语句有可能写错，如果能把运行时出错的SQL语句直接打印出来，那对排错非常方便，因为其可以直接拷贝到数据库客户端进行调试。在[《JDBC 查询日志变得简单》](https://www.ibm.com/developerworks/cn/java/j-loggable/)这篇文章中，作者也希望有一种方法，它使我们能够获得查询字符串，并用实际的参数值替换参数占位符，最终他提出了一种解决方案，使用修饰器模式(decorator)扩展PreparedStatement，新增一个有日志功能的LoggableStatment的类。这当然是很不错的解决方案。
 　　      
-　　Memory工具，没有新增扩展类，只是在PrparedStatementHandler中，提供一个print方法，将SQL语句中的占位符替换为实际的参数，并在发生SQL Exception时，将其打印出来。
+　　Memory工具，没有新增扩展类，只是在PreparedStatementHandler中，提供一个print方法，将SQL语句中的占位符替换为实际的参数，并在发生SQL Exception时，将其打印出来。
 
 ### 3.5	也说ORM
 
