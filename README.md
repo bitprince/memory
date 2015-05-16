@@ -50,7 +50,7 @@
 	 />
 </Context>
 ```
-　　在代码中实例化,采用[懒加载单例模式](http://en.wikipedia.org/wiki/Singleton_pattern#Lazy_initialization)该数据源：
+　　在代码中,采用[懒加载单例模式](http://en.wikipedia.org/wiki/Singleton_pattern#Lazy_initialization)加载数据源并实例化：
 ``` java
 public class MemoryFactory {
 
