@@ -1,4 +1,4 @@
-## 瘦骨嶙峋的记录者: 持久化工具memory
+## 清瘦的记录者: 一个比dbutils更小巧、好用的的持久化工具
 
 ###	1. 概述
 #### 1.1 连接、语句和结果集
@@ -50,7 +50,7 @@
 	 />
 </Context>
 ```
-　　在代码中实例化,采用[懒加载单例模式](http://en.wikipedia.org/wiki/Singleton_pattern#Lazy_initialization)该数据源：
+　　在代码中,采用[懒加载单例模式](http://en.wikipedia.org/wiki/Singleton_pattern#Lazy_initialization)加载数据源并实例化：
 ``` java
 public class MemoryFactory {
 
