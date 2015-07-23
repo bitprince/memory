@@ -433,7 +433,7 @@ public class Memory {
 		if (params == null)
 			return;
 		for (int i = 0; i < params.length; i++) {
-			// hack oracle's bug (version < 10)
+			// hack oracle's bug (version <= 9)
 			if (sequence && params[i] == null) { 
 				stmt.setNull(i+1, Types.VARCHAR);
 			} else {
