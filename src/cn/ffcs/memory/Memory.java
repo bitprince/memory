@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -432,7 +433,12 @@ public class Memory {
 		if (params == null)
 			return;
 		for (int i = 0; i < params.length; i++) {
-			stmt.setObject(i + 1, params[i]);
+			// hack oracle's bug (version < 10)
+			if (sequence && params[i] == null) { 
+				stmt.setNull(i+1, Types.VARCHAR);
+			} else {
+				stmt.setObject(i + 1, params[i]);
+			}
 		}
 	}
 	private void close(ResultSet rs, Statement stmt, Connection conn)
