@@ -39,15 +39,16 @@ public class Memory {
 	}
 
 	public <T> T query(StringBuffer sql, ResultSetHandler<T> rsh,
-			List<Object> params) throws SQLException {
+			List<Object> params) {
 		return this.query(this.getConnection(), sql, rsh, params);
 	}
-	public <T> T query(String sql, ResultSetHandler<T> rsh, Object... params)
-			throws SQLException {
+
+	public <T> T query(String sql, ResultSetHandler<T> rsh, Object... params) {
 		return this.query(this.getConnection(), sql, rsh, params);
 	}
+
 	public <T> T query(Connection conn, StringBuffer sql,
-			ResultSetHandler<T> rsh, List<Object> params) throws SQLException {
+			ResultSetHandler<T> rsh, List<Object> params) {
 		return this.query(
 				conn,
 				sql.toString(),
@@ -55,8 +56,9 @@ public class Memory {
 				params == null ? new Object[] {} : params
 						.toArray(new Object[] {}));
 	}
+
 	public <T> T query(Connection conn, String sql, ResultSetHandler<T> rsh,
-			Object... params) throws SQLException {
+			Object... params) {
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
 		T result = null;
@@ -68,26 +70,27 @@ public class Memory {
 			result = rsh.handle(rs);
 		} catch (SQLException e) {
 			psh.print(sql, params);
-			throw e;
+			throw new RuntimeException(e);
 		} finally {
 			close(rs, stmt, conn);
 		}
 		return result;
-	}	
-		
-	public int update(StringBuffer sql, List<Object> params)
-			throws SQLException {
-		return this.update(sql.toString(), params.toArray(new Object[] {}));
-	}	
-	public int update(String sql, Object... params) throws SQLException {
-		return this.update(this.getConnection(), sql, params);
-	}	
-	public int update(Connection conn, StringBuffer sql, List<Object> params)
-			throws SQLException {
-		return this.update(conn, sql.toString(),params.toArray(new Object[] {}));
 	}
-	public int update(Connection conn, String sql, Object... params)
-			throws SQLException {
+
+	public int update(StringBuffer sql, List<Object> params) {
+		return this.update(sql.toString(), params.toArray(new Object[] {}));
+	}
+
+	public int update(String sql, Object... params) {
+		return this.update(this.getConnection(), sql, params);
+	}
+
+	public int update(Connection conn, StringBuffer sql, List<Object> params) {
+		return this.update(conn, sql.toString(),
+				params.toArray(new Object[] {}));
+	}
+
+	public int update(Connection conn, String sql, Object... params) {
 		PreparedStatement stmt = null;
 		int rows = 0;
 		try {
@@ -97,17 +100,18 @@ public class Memory {
 			rows = stmt.executeUpdate();
 		} catch (SQLException e) {
 			psh.print(sql, params);
-			throw e;
+			throw new RuntimeException(e);
 		} finally {
 			close(stmt, conn);
 		}
 		return rows;
-	}	
+	}
 
-	public int[] batch(String sql, Object[][] params) throws SQLException {
+	public int[] batch(String sql, Object[][] params) {
 		return this.batch(this.getConnection(), sql, params);
 	}
-	public int[] batch(Connection conn, String sql, Object[][] params) throws SQLException {		
+
+	public int[] batch(Connection conn, String sql, Object[][] params) {
 		PreparedStatement stmt = null;
 		int[] rows = null;
 		try {
@@ -121,27 +125,29 @@ public class Memory {
 			}
 			rows = stmt.executeBatch();
 			conn.commit();
-		} catch (SQLException e) {
-			throw e;
-		} finally {
 			conn.setAutoCommit(true);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		} finally {			
 			close(stmt, conn);
 		}
 		return rows;
 	}
-	
-	public <T> int create(Class<T> cls, T bean) throws SQLException {
+
+	public <T> int create(Class<T> cls, T bean) {
 		return this.create(this.getConnection(), cls, bean);
 	}
-	public <T> int create(Class<T> cls, T bean, boolean customKey) throws SQLException {
+
+	public <T> int create(Class<T> cls, T bean, boolean customKey) {
 		return this.create(this.getConnection(), cls, bean, customKey);
-	}	
-	public <T> int create(Connection conn, Class<T> cls, T bean)
-			throws SQLException {
+	}
+
+	public <T> int create(Connection conn, Class<T> cls, T bean) {
 		return this.create(conn, cls, bean, false);
 	}
+
 	public <T> int create(Connection conn, Class<T> cls, T bean,
-			boolean customKey) throws SQLException {
+			boolean customKey) {
 		int rows = 0;
 		PreparedStatement stmt = null;
 		try {
@@ -196,13 +202,13 @@ public class Memory {
 			} else {
 				stmt = conn.prepareStatement(sql);
 			}
-			
+
 			this.fillStatement(stmt, params);
 			try {
 				rows = stmt.executeUpdate();
 			} catch (SQLException e) {
 				psh.print(sql, params);
-				throw e;
+				throw new RuntimeException(e);
 			}
 			/**
 			 * 如果使用非自定义主键，则返回主键ID的值
@@ -223,25 +229,31 @@ public class Memory {
 				}
 			}
 		} catch (IllegalArgumentException e) {
-			throw new SQLException(e);
+			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {
-			throw new SQLException(e);
+			throw new RuntimeException(e);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
 		} finally {
 			close(stmt, conn);
 		}
 		return rows;
 	}
-	
-	public <T> int[] create(Class<T> cls, List<T> beans) throws SQLException {
+
+	public <T> int[] create(Class<T> cls, List<T> beans) {
 		return create(this.getConnection(), cls, beans, false);
-	}	
-	public <T> int[] create(Class<T> cls, List<T> beans, boolean customKey) throws SQLException {
+	}
+
+	public <T> int[] create(Class<T> cls, List<T> beans, boolean customKey) {
 		return create(this.getConnection(), cls, beans, customKey);
-	}	
-	public <T> int[] create(Connection conn, Class<T> cls, List<T> beans) throws SQLException {
+	}
+
+	public <T> int[] create(Connection conn, Class<T> cls, List<T> beans) {
 		return create(conn, cls, beans, false);
-	}	
-	public <T> int[] create(Connection conn, Class<T> cls, List<T> beans, boolean customKey) throws SQLException {
+	}
+
+	public <T> int[] create(Connection conn, Class<T> cls, List<T> beans,
+			boolean customKey) {
 		Field[] fields = cls.getDeclaredFields();
 
 		// build SQL
@@ -268,7 +280,7 @@ public class Memory {
 		// build parameters */
 		int rows = beans.size();
 		int cols = customKey ? fields.length : fields.length - 1;
-		
+
 		Object[][] params = new Object[rows][cols];
 		try {
 			for (int i = 0; i < rows; i++) {
@@ -284,42 +296,45 @@ public class Memory {
 				}
 			}
 		} catch (IllegalArgumentException e) {
-			throw new SQLException(e);
+			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {
-			throw new SQLException(e);
+			throw new RuntimeException(e);
 		}
 		// execute
-		return batch(sql, params);
+		return batch(conn,sql, params);
 	}
-	
-	public <T> T read(Class<T> cls, long id) throws SQLException {
+
+	public <T> T read(Class<T> cls, long id) {
 		return this.read(this.getConnection(), cls, id);
 	}
-	public <T> T read(Connection conn, Class<T> cls, long id)
-			throws SQLException {
+
+	public <T> T read(Connection conn, Class<T> cls, long id) {
 		String table = camel2underscore(cls.getSimpleName());
 		return (T) query(conn, "select * from " + table + " where id=?",
 				new BeanHandler<T>(cls), id);
 	}
 
-	public <T> int update(Class<T> cls, T bean) throws SQLException {
+	public <T> int update(Class<T> cls, T bean) {
 		return this.update(cls, bean, "id");
 	}
-	public <T> int update(Connection conn,Class<T> cls, T bean) throws SQLException {
+
+	public <T> int update(Connection conn, Class<T> cls, T bean) {
 		return this.update(conn, cls, bean, "id");
-	}	
-	public <T> int update(Class<T> cls, T bean, String primaryKey) throws SQLException {
+	}
+
+	public <T> int update(Class<T> cls, T bean, String primaryKey) {
 		return this.update(this.getConnection(), cls, bean, primaryKey);
 	}
-	public <T> int update(Connection conn, Class<T> cls, T bean, String primaryKey)
-			throws SQLException {
+
+	public <T> int update(Connection conn, Class<T> cls, T bean,
+			String primaryKey) {
 		primaryKey = underscore2camel(primaryKey);
 		Object id = 0;
 		String columnAndQuestionMarks = "";
 
 		Field[] fields = cls.getDeclaredFields();
 		Object[] params = new Object[fields.length];
-		
+
 		try {
 			int j = 0;
 			for (Field field : fields) {
@@ -336,9 +351,9 @@ public class Memory {
 			}
 			params[j] = id;
 		} catch (IllegalArgumentException e) {
-			throw new SQLException(e);
+			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {
-			throw new SQLException(e);
+			throw new RuntimeException(e);
 		}
 		String table = camel2underscore(cls.getSimpleName());
 		columnAndQuestionMarks = columnAndQuestionMarks.substring(0,
@@ -347,22 +362,26 @@ public class Memory {
 				columnAndQuestionMarks, camel2underscore(primaryKey));
 		return update(conn, sql, params);
 	}
-	
-	public <T> int[] update(Class<T> cls, List<T> beans) throws SQLException {
+
+	public <T> int[] update(Class<T> cls, List<T> beans) {
 		return this.update(cls, beans, "id");
 	}
-	public <T> int[] update(Connection conn, Class<T> cls, List<T> beans) throws SQLException {
+
+	public <T> int[] update(Connection conn, Class<T> cls, List<T> beans) {
 		return this.update(conn, cls, beans, "id");
 	}
-	public <T> int[] update(Class<T> cls, List<T> beans,String primaryKey) throws SQLException {
+
+	public <T> int[] update(Class<T> cls, List<T> beans, String primaryKey) {
 		return this.update(this.getConnection(), cls, beans, primaryKey);
 	}
-	public <T> int[] update(Connection conn, Class<T> cls, List<T> beans,String primaryKey) throws SQLException {
+
+	public <T> int[] update(Connection conn, Class<T> cls, List<T> beans,
+			String primaryKey) {
 		try {
-			primaryKey = underscore2camel(primaryKey);			
-			Field[] fields = cls.getDeclaredFields();			
+			primaryKey = underscore2camel(primaryKey);
+			Field[] fields = cls.getDeclaredFields();
 			String columnAndQuestionMarks = "";
-			
+
 			for (Field field : fields) {
 				String name = field.getName();
 				if (name.equals(primaryKey)) {
@@ -374,7 +393,7 @@ public class Memory {
 			columnAndQuestionMarks = columnAndQuestionMarks.substring(0,
 					columnAndQuestionMarks.length() - 1);
 			String sql = String.format("update %s set %s where %s = ?", table,
-					columnAndQuestionMarks,camel2underscore(primaryKey));
+					columnAndQuestionMarks, camel2underscore(primaryKey));
 
 			// build parameters
 			int rows = beans.size();
@@ -398,70 +417,94 @@ public class Memory {
 			}
 			return batch(conn, sql, params);
 		} catch (IllegalArgumentException e) {
-			throw new SQLException(e);
+			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {
-			throw new SQLException(e);
+			throw new RuntimeException(e);
 		}
 	}
-	
-	public <T> int delete(Class<T> cls, long id) throws SQLException {
+
+	public <T> int delete(Class<T> cls, long id) {
 		return this.delete(this.getConnection(), cls, id);
 	}
-	public <T> int delete(Connection conn, Class<T> cls, long id)
-			throws SQLException {
+
+	public <T> int delete(Connection conn, Class<T> cls, long id) {
 		String sql = String.format("delete from %s where id=?",
 				camel2underscore(cls.getSimpleName()));
 		return update(conn, sql, new Object[] { id });
 	}
-	
+
 	public void pager(StringBuffer sql, List<Object> params, int pageSize,
 			int pageNo) {
 		psh.pager(sequence, sql, params, pageSize, pageNo);
 	}
-	
+
 	public <T> void in(StringBuffer sql, List<Object> params, String operator,
 			String field, List<T> values) {
 		psh.in(sequence, sql, params, operator, field, values);
-	}		
-	
-	public Connection getConnection() throws SQLException {
-		return this.ds.getConnection();
 	}
-	
-	private void fillStatement(PreparedStatement stmt, Object... params)
-			throws SQLException {
+
+	public Connection getConnection() {
+		try {
+			return this.ds.getConnection();
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void fillStatement(PreparedStatement stmt, Object... params) {
 		if (params == null)
 			return;
-		for (int i = 0; i < params.length; i++) {
-			// hack oracle's bug (version <= 9)
-			if (sequence && params[i] == null) { 
-				stmt.setNull(i+1, Types.VARCHAR);
-			} else {
-				stmt.setObject(i + 1, params[i]);
+		try {
+			for (int i = 0; i < params.length; i++) {
+				// hack oracle's bug (version <= 9)
+				if (sequence && params[i] == null) {
+					stmt.setNull(i + 1, Types.VARCHAR);
+
+				} else {
+					stmt.setObject(i + 1, params[i]);
+				}
 			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
 		}
 	}
-	private void close(ResultSet rs, Statement stmt, Connection conn)
-			throws SQLException {
-		if (rs != null) {
-			rs.close();
-		}
-		close(stmt, conn);
-	}
-	private void close(Statement stmt, Connection conn) throws SQLException {
-		if (stmt != null) {
-			stmt.close();
-		}
-		close(conn);
-	}
-	private void close(Connection conn) throws SQLException {
-		if (conn != null && conn.getAutoCommit()) {
-			conn.close();
+
+	private void close(ResultSet rs, Statement stmt, Connection conn) {
+		try {
+			if (rs != null) {
+				rs.close();
+			}
+			close(stmt, conn);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
 		}
 	}
+
+	private void close(Statement stmt, Connection conn) {
+		try {
+			if (stmt != null) {
+				stmt.close();
+			}
+			close(conn);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void close(Connection conn) {
+		try {
+			if (conn != null && conn.getAutoCommit()) {
+				conn.close();
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	private String camel2underscore(String camel) {
 		return psh.camel2underscore(camel);
 	}
+
 	private String underscore2camel(String underscore) {
 		return psh.underscore2camel(underscore);
 	}

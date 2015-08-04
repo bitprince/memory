@@ -28,7 +28,11 @@ public class BeanListHandler<T> implements ResultSetHandler<List<T>> {
     }
 
     @Override
-    public List<T> handle(ResultSet rs) throws SQLException {
-        return this.convert.toBeanList(rs, type);
+    public List<T> handle(ResultSet rs)  {
+        try {
+			return this.convert.toBeanList(rs, type);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
     }
 }

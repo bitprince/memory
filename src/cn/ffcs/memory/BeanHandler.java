@@ -26,7 +26,11 @@ public class BeanHandler<T> implements ResultSetHandler<T> {
 	}
 
 	@Override
-	public T handle(ResultSet rs) throws SQLException {
-		 return rs.next() ? this.convert.toBean(rs, this.type) : null;
+	public T handle(ResultSet rs)  {
+		 try {
+			return rs.next() ? this.convert.toBean(rs, this.type) : null;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

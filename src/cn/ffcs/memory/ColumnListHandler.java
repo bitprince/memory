@@ -44,12 +44,16 @@ public class ColumnListHandler<T> implements ResultSetHandler<List<T>> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<T> handle(ResultSet rs) throws SQLException {
-		List<T> rows = new ArrayList<T>();
-		while (rs.next()) {
-			rows.add((T) processColumn(rs));
+	public List<T> handle(ResultSet rs) {
+		try {
+			List<T> rows = new ArrayList<T>();
+			while (rs.next()) {
+				rows.add((T) processColumn(rs));
+			}
+			return rows;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
 		}
-		return rows;
 	}
 
 	private Object processColumn(ResultSet rs) throws SQLException {

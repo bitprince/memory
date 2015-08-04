@@ -42,8 +42,12 @@ public class ColumnHandler<T> implements ResultSetHandler<T> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public T handle(ResultSet rs) throws SQLException {
-		 return (T) (rs.next() ? processColumn(rs) : null);
+	public T handle(ResultSet rs)  {
+		 try {
+			return (T) (rs.next() ? processColumn(rs) : null);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private Object processColumn(ResultSet rs) throws SQLException {
