@@ -28,14 +28,24 @@ public class Memory {
 	private boolean sequence;
 	private PreparedStatementHandler psh;
 
-	public Memory(DataSource ds, boolean sequence) {
+	public Memory(DataSource ds) {
 		this.ds = ds;
-		this.sequence = sequence;
 		this.psh = PreparedStatementHandler.getInstance();
+		sequence(); 
 	}
 
-	public Memory(DataSource ds) {
-		this(ds, false); // 默认自增，不使用序列
+	/**
+	 * 判断是否使用序列（Oracle使用序列做主键，MySQL使用自增主键)
+	 */
+	private void sequence() {
+		Connection conn  = this.getConnection();
+		try {		
+			sequence = conn.getMetaData().getDatabaseProductName().toLowerCase().contains("oracle");			
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		} finally {
+			this.close(conn);
+		}
 	}
 
 	public <T> T query(StringBuffer sql, ResultSetHandler<T> rsh,
@@ -128,7 +138,7 @@ public class Memory {
 			conn.setAutoCommit(true);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
-		} finally {			
+		} finally {
 			close(stmt, conn);
 		}
 		return rows;
@@ -301,7 +311,7 @@ public class Memory {
 			throw new RuntimeException(e);
 		}
 		// execute
-		return batch(conn,sql, params);
+		return batch(conn, sql, params);
 	}
 
 	public <T> T read(Class<T> cls, long id) {
