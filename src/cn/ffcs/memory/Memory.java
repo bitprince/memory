@@ -24,8 +24,8 @@ import javax.sql.DataSource;
  * @Description: 访问数据库的工具，支持Oracle和MYSQL
  * @Copyright: Copyright (c) 2015 FFCS All Rights Reserved
  * @Company: 北京福富软件有限公司
- * @author 黄君毅 2013-4-12
- * @version 1.00.00
+ * @author 黄君毅 
+ * @version 1.0.2
  * @history:
  * 
  */
