@@ -1,6 +1,12 @@
 package cn.ffcs.memory;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,11 +17,12 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+
 /**
  * 
  * 
  * @Description: 访问数据库的工具，支持Oracle和MYSQL
- * @Copyright: Copyright (c) 2013 FFCS All Rights Reserved
+ * @Copyright: Copyright (c) 2015 FFCS All Rights Reserved
  * @Company: 北京福富软件有限公司
  * @author 黄君毅 2013-4-12
  * @version 1.00.00
@@ -138,7 +145,7 @@ public class Memory {
 			conn.setAutoCommit(true);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
-		} finally {
+		} finally {			
 			close(stmt, conn);
 		}
 		return rows;
@@ -160,21 +167,21 @@ public class Memory {
 			boolean customKey) {
 		int rows = 0;
 		PreparedStatement stmt = null;
-		try {
-			Field[] fields = cls.getDeclaredFields();
-
+		try {			
+			BeanInfo beanInfo = Introspector.getBeanInfo(cls, Object.class);
+			PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors(); 
+			
 			String table = camel2underscore(cls.getSimpleName());
 			String columns = "", questionMarks = "";
 
-			Object[] params = customKey ? new Object[fields.length]
-					: new Object[fields.length - 1];
+			Object[] params = customKey ? new Object[pds.length]
+					: new Object[pds.length - 1];
 
 			int j = 0;
-
-			for (Field field : fields) {
-				field.setAccessible(true);
-				String name = field.getName();
-				Object value = field.get(bean);
+			for (PropertyDescriptor pd : pds) {
+				Method getter = pd.getReadMethod();
+				String name = pd.getName();
+				Object value = getter.invoke(bean);
 				/**
 				 * 非自定义主键，则ID作为主键且使用序列或自增主键
 				 */
@@ -229,11 +236,12 @@ public class Memory {
 				if (rs.next()) {
 					id = rs.getLong(1);
 				}
-				for (Field field : fields) {
-					field.setAccessible(true);
-					String name = field.getName();
+				
+				for (PropertyDescriptor pd : pds) {
+					String name = pd.getName();
 					if (name.equals("id")) {
-						field.set(bean, id);
+						Method setter = pd.getWriteMethod();
+						setter.invoke(bean, id);
 						break;
 					}
 				}
@@ -243,6 +251,10 @@ public class Memory {
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		} catch (IntrospectionException e) {
+			throw new RuntimeException(e);
+		} catch (InvocationTargetException e) {
 			throw new RuntimeException(e);
 		} finally {
 			close(stmt, conn);
@@ -264,14 +276,20 @@ public class Memory {
 
 	public <T> int[] create(Connection conn, Class<T> cls, List<T> beans,
 			boolean customKey) {
-		Field[] fields = cls.getDeclaredFields();
+		BeanInfo beanInfo = null;
+		try {
+			beanInfo = Introspector.getBeanInfo(cls, Object.class);
+		} catch (IntrospectionException e) {
+			throw new RuntimeException(e);
+		}
+		PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors(); 
 
 		// build SQL
 		String table = camel2underscore(cls.getSimpleName());
 		String columns = "", questionMarks = "";
 
-		for (Field field : fields) {
-			String name = field.getName();
+		for (PropertyDescriptor pd : pds) {
+			String name = pd.getName();
 			if (!customKey && name.equals("id")) {
 				if (sequence) {
 					columns += "id,";
@@ -289,16 +307,17 @@ public class Memory {
 
 		// build parameters */
 		int rows = beans.size();
-		int cols = customKey ? fields.length : fields.length - 1;
+		int cols = customKey ? pds.length : pds.length - 1;
 
 		Object[][] params = new Object[rows][cols];
 		try {
 			for (int i = 0; i < rows; i++) {
 				int j = 0;
-				for (Field field : fields) {
-					field.setAccessible(true);
-					Object value = field.get(beans.get(i));
-					if (!customKey && field.getName().equals("id")) {
+				for (PropertyDescriptor pd : pds) {
+					Method getter = pd.getReadMethod();
+					String name = pd.getName();
+					Object value = getter.invoke(beans.get(i));				
+					if (!customKey && name.equals("id")) {
 						continue;
 					}
 					params[i][j] = value;
@@ -309,9 +328,11 @@ public class Memory {
 			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
+		} catch (InvocationTargetException e) {
+			throw new RuntimeException(e);
 		}
 		// execute
-		return batch(conn, sql, params);
+		return batch(conn,sql, params);
 	}
 
 	public <T> T read(Class<T> cls, long id) {
