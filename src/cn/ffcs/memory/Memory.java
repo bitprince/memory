@@ -25,7 +25,7 @@ import javax.sql.DataSource;
  * @Copyright: Copyright (c) 2015 FFCS All Rights Reserved
  * @Company: 北京福富软件有限公司
  * @author 黄君毅 
- * @version 1.0.2
+ * @version 1.0.3
  * @history:
  * 
  */
@@ -358,20 +358,20 @@ public class Memory {
 	}
 
 	public <T> int update(Connection conn, Class<T> cls, T bean,
-			String primaryKey) {
-		primaryKey = underscore2camel(primaryKey);
-		Object id = 0;
-		String columnAndQuestionMarks = "";
-
-		Field[] fields = cls.getDeclaredFields();
-		Object[] params = new Object[fields.length];
-
-		try {
+			String primaryKey) {		
+		try {			
+			BeanInfo beanInfo = Introspector.getBeanInfo(cls, Object.class);
+			PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();		
+		
+			Object[] params = new Object[pds.length];			
+			primaryKey = underscore2camel(primaryKey);
+			Object id = 0;
+			String columnAndQuestionMarks = "";
 			int j = 0;
-			for (Field field : fields) {
-				field.setAccessible(true);
-				String name = field.getName();
-				Object value = field.get(bean);
+			for (PropertyDescriptor pd : pds) {
+				Method getter = pd.getReadMethod();
+				String name = pd.getName();
+				Object value = getter.invoke(bean);
 				if (name.equals(primaryKey)) {
 					id = value;
 				} else {
@@ -380,18 +380,22 @@ public class Memory {
 					j++;
 				}
 			}
-			params[j] = id;
+			params[j] = id;			
+			String table = camel2underscore(cls.getSimpleName());
+			columnAndQuestionMarks = columnAndQuestionMarks.substring(0,
+					columnAndQuestionMarks.length() - 1);
+			String sql = String.format("update %s set %s where %s = ?", table,
+					columnAndQuestionMarks, camel2underscore(primaryKey));
+			return update(conn, sql, params);			
 		} catch (IllegalArgumentException e) {
 			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
+		} catch (InvocationTargetException e) {
+			throw new RuntimeException(e);
+		} catch (IntrospectionException e) {
+			throw new RuntimeException(e);
 		}
-		String table = camel2underscore(cls.getSimpleName());
-		columnAndQuestionMarks = columnAndQuestionMarks.substring(0,
-				columnAndQuestionMarks.length() - 1);
-		String sql = String.format("update %s set %s where %s = ?", table,
-				columnAndQuestionMarks, camel2underscore(primaryKey));
-		return update(conn, sql, params);
 	}
 
 	public <T> int[] update(Class<T> cls, List<T> beans) {
