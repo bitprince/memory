@@ -4,7 +4,6 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -412,13 +411,15 @@ public class Memory {
 
 	public <T> int[] update(Connection conn, Class<T> cls, List<T> beans,
 			String primaryKey) {
-		try {
+		try {		
+			BeanInfo beanInfo = Introspector.getBeanInfo(cls, Object.class);
+			PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors();	
+			
 			primaryKey = underscore2camel(primaryKey);
-			Field[] fields = cls.getDeclaredFields();
 			String columnAndQuestionMarks = "";
 
-			for (Field field : fields) {
-				String name = field.getName();
+			for (PropertyDescriptor pd : pds) {
+				String name = pd.getName();				
 				if (name.equals(primaryKey)) {
 				} else {
 					columnAndQuestionMarks += camel2underscore(name) + "=?,";
@@ -432,15 +433,15 @@ public class Memory {
 
 			// build parameters
 			int rows = beans.size();
-			int cols = fields.length;
+			int cols = pds.length;
 			Object id = 0;
 			Object[][] params = new Object[rows][cols];
 			for (int i = 0; i < rows; i++) {
 				int j = 0;
-				for (Field field : fields) {
-					field.setAccessible(true);
-					String name = field.getName();
-					Object value = field.get(beans.get(i));
+				for (PropertyDescriptor pd : pds) {
+					Method getter = pd.getReadMethod();
+					String name = pd.getName();
+					Object value = getter.invoke(beans.get(i));				
 					if (name.equals(primaryKey)) {
 						id = value;
 					} else {
@@ -454,6 +455,10 @@ public class Memory {
 		} catch (IllegalArgumentException e) {
 			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		} catch (InvocationTargetException e) {
+			throw new RuntimeException(e);
+		} catch (IntrospectionException e) {
 			throw new RuntimeException(e);
 		}
 	}
