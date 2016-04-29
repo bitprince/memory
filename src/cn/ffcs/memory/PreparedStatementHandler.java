@@ -19,8 +19,11 @@ import java.util.regex.Pattern;
  */
 public final class PreparedStatementHandler {
 	private static final PreparedStatementHandler psh = new PreparedStatementHandler();
-	private static final SimpleDateFormat sdf = new SimpleDateFormat(
-			"yyyy-MM-dd HH:mm:ss");
+	private static final ThreadLocal<SimpleDateFormat> sdfThreadLocal = new ThreadLocal<SimpleDateFormat>(){
+		protected SimpleDateFormat initialValue() {
+			return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		};
+	};
 
 	public static PreparedStatementHandler getInstance() {
 		return psh;
@@ -133,7 +136,7 @@ public final class PreparedStatementHandler {
 			if (value == null)
 				continue;
 			if (value instanceof Date) {
-				params[i] = sdf.format(value);
+				params[i] = sdfThreadLocal.get().format(value);
 			} else if (value.getClass().isEnum()) {
 				params[i] = params[i].toString();
 			} else if (value instanceof Boolean) {
@@ -157,7 +160,7 @@ public final class PreparedStatementHandler {
 					args[i] = "to_date(?,'yyyy-mm-dd hh24:mi:ss')";
 					found = true;
 				}
-				params[i] = sdf.format(value);
+				params[i] = sdfThreadLocal.get().format(value);
 			} else if (value.getClass().isEnum()) {
 				params[i] = value.toString();
 			}
@@ -201,7 +204,7 @@ public final class PreparedStatementHandler {
 		for (int i = 0; i < cols; i++) {
 			Object value = values[i];
 			if (value instanceof Date) {
-				values[i] = toQuote(sdf.format(value));
+				values[i] = toQuote(sdfThreadLocal.get().format(value));
 			} else if (value instanceof String) {
 				values[i] = toQuote(value);
 			} else if (value instanceof Boolean) {
