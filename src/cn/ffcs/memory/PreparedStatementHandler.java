@@ -51,7 +51,7 @@ public final class PreparedStatementHandler {
 	public <T> void in(boolean sequence, StringBuffer sql, List<Object> params, String operator,
 			String field, List<T> values){
 		if (values == null || values.size() == 0) {
-			return;
+			throw new NullPointerException(); // 抛空指针异常，避免执行非预期的动作
 		}
 		
 		sql.append(" ");
