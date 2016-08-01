@@ -209,7 +209,7 @@ public class Memory {
 			 */
 			if (!customKey) {
 				if (sequence) {
-					String generatedColumns[] = { "id" };
+					String[] generatedColumns = { "id" };
 					stmt = conn.prepareStatement(sql, generatedColumns);
 				} else {
 					stmt = conn.prepareStatement(sql,
